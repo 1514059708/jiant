@@ -799,7 +799,12 @@ class ModelPreprocessingInterface(object):
                 or invalid.
 
             """
-            seq_w_boundry_tokens = apply_boundary_tokens(*args, **kwargs)
+            # preview the return value from apply_boundary_tokens (int or tuple depending on kwargs)
+            apply_boundary_tokens_results = apply_boundary_tokens(*args, **kwargs)
+            if "get_offset" in kwargs and kwargs["get_offset"]:
+                seq_w_boundry_tokens = apply_boundary_tokens_results[0]
+            else:
+                seq_w_boundry_tokens = apply_boundary_tokens_results
             # if after calling the apply_boundary_tokens function the number of tokens is greater
             # than the model's max, a truncation strategy can reduce the number of tokens:
             num_excess_tokens = len(seq_w_boundry_tokens) - max_tokens
@@ -871,7 +876,7 @@ class ModelPreprocessingInterface(object):
                 else:
                     raise ValueError(trunc_strategy + " is not a valid truncation strategy.")
             else:
-                return seq_w_boundry_tokens
+                return apply_boundary_tokens_results
 
         return _apply_boundary_tokens_with_trunc_strategy
 
