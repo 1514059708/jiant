@@ -196,3 +196,18 @@ class TestModelPreprocessingInterface(unittest.TestCase):
             trunc_strategy="trunc_s2",
             trunc_side="right",
         )
+
+    def test_boundary_token_fn_trunc_s2_left_side_w_offsets_option(self):
+        MAX_SEQ_LEN = 7
+        args = config.Params(max_seq_len=MAX_SEQ_LEN, input_module="bert-base-uncased")
+        mpi = ModelPreprocessingInterface(args)
+        seq, offset_1, offset_2 = mpi.boundary_token_fn(
+            ["Apple", "buy", "call"],
+            s2=["Xray", "you", "zoo"],
+            trunc_strategy="trunc_s2",
+            trunc_side="left",
+            get_offset=True,
+        )
+        self.assertEqual(len(seq), MAX_SEQ_LEN)
+        self.assertEqual(seq, ["[CLS]", "Apple", "buy", "call", "[SEP]", "zoo", "[SEP]"])
+        self.assertListEqual([offset_1, offset_2], [1, 5])
